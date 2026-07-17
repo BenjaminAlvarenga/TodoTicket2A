@@ -1,16 +1,17 @@
 import ticketController from "../controllers/ticketController.js";
 import express from "express";
+import { authValidation } from "../middleware/authMiddleware.js";
 
 const router = express.Router()
 
 router.route("/")
-.get(ticketController.get)
+.get(authValidation(["Admin"]),ticketController.getTickets)
 
 router.route("/buy")
-.get(ticketController.post)
+.post(ticketController.postTicket)
 
 router.route("/:id")
-.get(ticketController.put)
-.get(ticketController.delete)
+.put(ticketController.putTicket)
+.delete(authValidation(["Admin"]),ticketController.deleteTicket)
 
 export default router

@@ -2,7 +2,7 @@ import ticketsModal from "../models/tickets.js";
 
 const ticketController = {};
 
-ticketController.get = async (req, res) => {
+ticketController.getTickets = async (req, res) => {
   try {
     const tickets = await ticketsModal.find();
     return res.status(200).json(tickets);
@@ -12,7 +12,7 @@ ticketController.get = async (req, res) => {
   }
 };
 
-ticketController.post = async (req, res) => {
+ticketController.postTicket = async (req, res) => {
   try {
     const {
       customerId,
@@ -46,11 +46,11 @@ ticketController.post = async (req, res) => {
   }
 };
 
-ticketController.put = async (req, res) => {
+ticketController.putTicket = async (req, res) => {
     try {
         const {paymentStatus} = req.body
 
-        const editTicket = await ticketsModal.findByIdAndDelete(req.params.id, {paymentStatus}, {new: true})
+        const editTicket = await ticketsModal.findByIdAndUpdate(req.params.id, {paymentStatus}, {new: true})
 
         await editTicket.save()
 
@@ -61,7 +61,7 @@ ticketController.put = async (req, res) => {
     }
 }
 
-ticketController.delete = async (req, res) => {
+ticketController.deleteTicket = async (req, res) => {
     try {
         const deletation = await ticketsModal.findByIdAndDelete(req.params.id)
         if(!deletation){return res.status(404).json({message:"Ticket doesn`t exists"})}

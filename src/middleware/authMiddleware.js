@@ -8,9 +8,9 @@ export const authValidation = (allowedTypes = []) => {
             if(!auth){
                 return res.status(403).json({message:"Cookie Not Found"})
             }
-            const decoded = jsonwebtoken.verify(auth, config.JWT.secret)
+            const decoded = jsonwebtoken.verify(auth, config.jwt.secret)
 
-            if(!allowedTypes.includes(decode.userType)){
+            if(!allowedTypes.includes(decoded.userType)){
                 return res.status(401).json({message:"Access Denied"})
             }
 

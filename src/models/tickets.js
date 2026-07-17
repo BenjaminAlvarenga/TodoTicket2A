@@ -10,7 +10,7 @@
 import { Schema, model } from "mongoose";
 
 const ticketSchema = new Schema({
-    customerId: {type: Schema.Types.ObjectId, red: "Clients"},
+    customerId: {type: Schema.Types.ObjectId, ref: "Clients"},
     quantity:{type:Number},
     purchaseDate: {type:Date},
     total:{type: Number},
