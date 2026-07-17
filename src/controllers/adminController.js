@@ -1,5 +1,8 @@
-import bcrypt from "bcryptjs";
-import adminsModel from "../models/admins";
+import bcryptjs from "bcryptjs";
+import adminsModel from "../models/admins.js";
+import jsonwebtoken from "jsonwebtoken"
+import crypto from "crypto"
+import nodemailer from "nodemailer"
 import { config } from "../../config.js";
 
 const adminController = {};
@@ -36,7 +39,7 @@ adminController.login = async (res, req) => {
     userFound.timeout = null;
     await userFound.save();
 
-    const token = JsonWebTokenError.sign(
+    const token = jsonwentoken.sign(
       { id: userFound._id, userType: "Admin" },
       config.JWT.secret,
       { expiresIn: "30d" },
@@ -97,9 +100,9 @@ adminController.register = async (req, res) => {
 
     const verificationCode = crypto.randomBytes(3).toString("hex")
 
-    const token = JsonWebTokenError.sign(
+    const token = jsonwebtoken.sign(
         {email, verificationCode},
-        config.Jwt.secret,
+        config.jwt.secret,
         {expiresIn: "30m"}
     )
 
@@ -108,8 +111,8 @@ adminController.register = async (req, res) => {
     const transport = nodemailer.createTransport({
         service: "gmail",
         auth: {
-            user: config.email.user_email,
-            pass: config.email.user_password
+            user: config.user.email,
+            pass: config.user.pass
         }
     })
 
@@ -121,6 +124,8 @@ adminController.register = async (req, res) => {
     },(error) => {
         if(error) return res.status(500).json({message:"Internal Server Error"})
     })
+
+    return res.status(200).json({message:"Admin creado con exito, revise su correo para el codigo"})
   } catch (error) {
     console.log("Error " + error)
     return res.status(500).json({message:"Internal Server Error"})
@@ -130,8 +135,8 @@ adminController.register = async (req, res) => {
 adminController.verify = async (req, res) => {
     try {
         const {verify} = req.body
-        const token = req.cookie.verification
-        const decoded = JsonWebTokenError.verify(token, config.JWT.secret)
+        const token = req.cookie.verificationCode
+        const decoded = JsonWebTokenError.verify(token, config.jwt.secret)
         const {email, verificationCode: storedCode} = decoded;
 
         if(verify !== storedCode){
