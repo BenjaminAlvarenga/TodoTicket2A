@@ -15,7 +15,7 @@ const clientSchema = new Schema({
     lastName: {type:String},
     email:{type: String},
     password: {type: String},
-    isVerified: {type: String},
+    isVerified: {type: Boolean},
     loginAttempts: {type: Number},
     timeout: {type: Date}
 })

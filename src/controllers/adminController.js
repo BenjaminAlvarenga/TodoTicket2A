@@ -7,7 +7,7 @@ import { config } from "../../config.js";
 
 const adminController = {};
 
-adminController.login = async (res, req) => {
+adminController.login = async (req, res) => {
   try {
     const { email, password } = req.body;
     const userFound = await adminsModel.findOne({ email });
@@ -20,12 +20,12 @@ adminController.login = async (res, req) => {
       return res.status(403).json({ message: "Admin blocked" });
     }
 
-    const isMatch = await bcrypt.compare(password, userFound.password);
+    const isMatch = await bcryptjs.compare(password, userFound.password);
 
     if (!isMatch) {
       userFound.loginAttempts = (userFound.loginAttempts || 0) + 1;
       if (userFound.loginAttempts > 6) {
-        userFound.timeout = Date.now + 15 * 60 * 1000;
+        userFound.timeout = Date.now() + 15 * 60 * 1000;
         userFound.loginAttempts = 0;
 
         await userFound.save();
@@ -39,9 +39,9 @@ adminController.login = async (res, req) => {
     userFound.timeout = null;
     await userFound.save();
 
-    const token = jsonwentoken.sign(
+    const token = jsonwebtoken.sign(
       { id: userFound._id, userType: "Admin" },
-      config.JWT.secret,
+      config.jwt.secret,
       { expiresIn: "30d" },
     );
 
@@ -50,9 +50,7 @@ adminController.login = async (res, req) => {
     return res.status(200).json({ message: "Login successful" });
   } catch (error) {
     console.log("error" + error);
-    return res
-      .status(500)
-      .json({ message: "Internal Server Error " + email + " " + password });
+    return res.status(500).json({ message: "Internal Server Error"});
   }
 };
 
@@ -125,7 +123,7 @@ adminController.register = async (req, res) => {
         if(error) return res.status(500).json({message:"Internal Server Error"})
     })
 
-    return res.status(200).json({message:"Admin creado con exito, revise su correo para el codigo"})
+    return res.status(200).json({message:"Admin created successfully, check your inbox emails for the verification code"})
   } catch (error) {
     console.log("Error " + error)
     return res.status(500).json({message:"Internal Server Error"})
@@ -145,6 +143,7 @@ adminController.verify = async (req, res) => {
 
         const admin = await adminsModel.findOne({email})
         admin.isVerified = true
+        await admin.save()
 
         res.clearCookie("verification")
 

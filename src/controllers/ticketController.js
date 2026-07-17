@@ -20,7 +20,7 @@ ticketController.post = async (req, res) => {
       purchaseDate,
       total,
       paymentStatus,
-      tansactionId,
+      transactionId,
     } = req.body;
 
     const transactionExists = await ticketsModal.findOne({ transactionId });
@@ -35,7 +35,7 @@ ticketController.post = async (req, res) => {
       purchaseDate,
       total,
       paymentStatus,
-      tansactionId,
+      transactionId,
     });
 
     await ticketPurchase.save()
@@ -50,9 +50,11 @@ ticketController.put = async (req, res) => {
     try {
         const {paymentStatus} = req.body
 
-        const editTicket = await ticketsModal.findOneAndUpdate(req.params.id, {paymentStatus})
+        const editTicket = await ticketsModal.findByIdAndDelete(req.params.id, {paymentStatus}, {new: true})
 
         await editTicket.save()
+
+        return res.status(200).json(editTicket)
     } catch (error) {
         console.log("Error" + error)
         return res.status(500).json({message:"Internal Server Error"})
@@ -61,7 +63,7 @@ ticketController.put = async (req, res) => {
 
 ticketController.delete = async (req, res) => {
     try {
-        const deletation = await ticketsModal.findOneAndDelete(req.params.id)
+        const deletation = await ticketsModal.findByIdAndDelete(req.params.id)
         if(!deletation){return res.status(404).json({message:"Ticket doesn`t exists"})}
         return res.status(200).json({message:"Ticket deleted successfully"})
     } catch (error) {

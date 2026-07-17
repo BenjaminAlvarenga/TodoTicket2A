@@ -9,10 +9,8 @@ router.route("/")
 router.route("/buy")
 .get(ticketController.post)
 
-router.route("/update")
+router.route("/:id")
 .get(ticketController.put)
-
-router.route("/delete")
 .get(ticketController.delete)
 
 export default router
