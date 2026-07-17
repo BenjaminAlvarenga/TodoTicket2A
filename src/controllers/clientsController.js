@@ -67,7 +67,7 @@ clientController.register = async (req, res) => {
   try {
     const {
       name,
-      lastname,
+      lastName,
       email,
       password,
       isVerified,
@@ -85,7 +85,7 @@ clientController.register = async (req, res) => {
 
     const newAdmin = new clientsModal({
       name,
-      lastname,
+      lastName,
       email,
       password: passwordHash,
       isVerified,
@@ -138,9 +138,8 @@ clientController.verify = async (req, res) => {
             return res.status(400).json({message:"Invalid Code"})
         }
 
-        const admin = await clientsModal({email})
+        const admin = await clientsModal.findOne({email})
         admin.isVerified = true
-        await admin.save();
 
         res.clearCookie("verification")
 

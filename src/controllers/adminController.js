@@ -70,7 +70,7 @@ adminController.register = async (req, res) => {
   try {
     const {
       name,
-      lastname,
+      lastName,
       email,
       password,
       isVerified,
@@ -88,7 +88,7 @@ adminController.register = async (req, res) => {
 
     const newAdmin = new adminsModel({
       name,
-      lastname,
+      lastName,
       email,
       password: passwordHash,
       isVerified,
@@ -135,17 +135,16 @@ adminController.register = async (req, res) => {
 adminController.verify = async (req, res) => {
     try {
         const {verify} = req.body
-        const token = req.cookie.verificationCode
-        const decoded = JsonWebTokenError.verify(token, config.jwt.secret)
+        const token = req.cookies.verification
+        const decoded = jsonwebtoken.verify(token, config.jwt.secret)
         const {email, verificationCode: storedCode} = decoded;
 
         if(verify !== storedCode){
             return res.status(400).json({message:"Invalid Code"})
         }
 
-        const admin = await adminsModel({email})
+        const admin = await adminsModel.findOne({email})
         admin.isVerified = true
-        await admin.save();
 
         res.clearCookie("verification")
 
