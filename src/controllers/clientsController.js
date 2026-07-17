@@ -1,5 +1,8 @@
-import bcrypt from "bcryptjs";
+import bcryptjs from "bcryptjs";
 import clientsModal from "../models/clients.js";
+import jsonwebtoken from "jsonwebtoken"
+import crypto from "crypto"
+import nodemailer from "nodemailer"
 import { config } from "../../config.js";
 
 const clientController = {};
@@ -36,7 +39,7 @@ clientController.login = async (res, req) => {
     userFound.timeout = null;
     await userFound.save();
 
-    const token = JsonWebTokenError.sign(
+    const token = jsonwebtoken.sign(
       { id: userFound._id, userType: "Admin" },
       config.JWT.secret,
       { expiresIn: "30d" },
@@ -97,7 +100,7 @@ clientController.register = async (req, res) => {
 
     const verificationCode = crypto.randomBytes(3).toString("hex")
 
-    const token = JsonWebTokenError.sign(
+    const token = jsonwebtoken.sign(
         {email, verificationCode},
         config.Jwt.secret,
         {expiresIn: "30m"}
@@ -131,7 +134,7 @@ clientController.verify = async (req, res) => {
     try {
         const {verify} = req.body
         const token = req.cookie.verification
-        const decoded = JsonWebTokenError.verify(token, config.JWT.secret)
+        const decoded = jsonwebtoken.verify(token, config.JWT.secret)
         const {email, verificationCode: storedCode} = decoded;
 
         if(verify !== storedCode){
